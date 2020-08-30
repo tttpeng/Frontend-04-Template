@@ -1,6 +1,6 @@
 <style>
     .cell {
-        background-color: green;
+        background-color: #9fee00;
         display: inline-block;
         width: 100px;
         height: 100px;
@@ -11,6 +11,7 @@
         vertical-align: middle;
         font-size: 50px;
     }
+
     .players {
         display: flex;
         justify-content: space-between;
@@ -19,6 +20,7 @@
         margin-bottom: 20px;
         margin-top: 20px;
     }
+
     .player-item {
         background-color: white;
         margin-left: 20px;
@@ -31,19 +33,22 @@
 </style>
 
 <html style="background-color:gray;">
-<div class="players">
-    <div class="player-item">Player ❌</div>
-    <div class="player-item">Player ⭕</div>
-</div>
-<div id="board" style="width: 306px"></div>
+
+<body>
+    <div class="players">
+        <div id="p1" class="player-item">Player ❌</div>
+        <div id="p2" class="player-item">Player ⭕</div>
+    </div>
+    <div id="board" style="width: 306px"></div>
+</body>
 
 </html>
 
 <script>
     let pattern = [
-        [0, 1, 0],
         [0, 0, 0],
-        [0, 0, 2]
+        [0, 0, 0],
+        [0, 0, 0]
     ];
 
     let player = 1;
@@ -63,54 +68,163 @@
                 if (pattern[i][j] == 2) {
                     cell.innerText = "⭕";
                 }
-                cell.addEventListener("click", () => move(j, i));
+                cell.addEventListener("click", () => userMove(j, i));
                 board.appendChild(cell)
             }
         }
     }
 
-    function move(x, y) {
+    function changePlayer(params) {
+
+        player = 3 - player;
+
+        let player1Element = document.getElementById('p1');
+        let player2Element = document.getElementById('p2');
+        player1Element.style.backgroundColor = 'white';
+        player2Element.style.backgroundColor = 'white';
+        let currentElement = document.getElementById('p' + player);
+        currentElement.style.backgroundColor = '#9fee00';
+
+    }
+
+    function userMove(x, y) {
         if (pattern[y][x] != 0) {
             return;
         }
         pattern[y][x] = player;
         show();
-        if (check(x, y)) {
-            setTimeout(() => {
-                alert(player, ' win!');
-            }, 1);
+        if (check(pattern, player)) {
+            alert((player == 1 ? "❌" : "⭕") + ' win!');
         }
-        player = 3 - player;
+        console.log(bestChoice(pattern, player));
+        changePlayer();
+        setTimeout(() => {
+            aiMove();            
+        }, 500);
     }
 
-    function check(x, y) {
-        {
+    function aiMove() {
+        let p = bestChoice(pattern, player);
+        if (!p.point) {
+            return;
+        }
+        console.log('best ', p);
+        let x= p.point[0];
+        let y = p.point[1];
+        pattern[y][x] = player;
+        show();
+        if (check(pattern, player)) {
+            alert((player == 1 ? "❌" : "⭕") + ' win!');
+        }
+        changePlayer();
+
+    }
+
+    function check(pattern, player) {
+        for (let i = 0; i < 3; i++) {
             let win = true;
-            for (let i = 0; i < 3; i++) {
-                if (pattern[i][x] != player) {
+            for (let j = 0; j < 3; j++) {
+                if (pattern[i][j] != player) {
                     win = false;
                 }
-
-
             }
             if (win) {
                 return win;
             }
         }
-        {
+
+        for (let i = 0; i < 3; i++) {
             let win = true;
-            for (let i = 0; i < 3; i++) {
-                if (pattern[y][i] != player) {
+            for (let j = 0; j < 3; j++) {
+                if (pattern[j][i] != player) {
                     win = false;
                 }
             }
             if (win) {
                 return win;
             }
+        }
+
+
+        {
+            let win = true;
+            for (let i = 0; i < 3; i++) {
+                if (pattern[i][i] != player) {
+                    win = false
+                }
+            }
+            if (win) {
+                return win;
+            }
+        } {
+            let win = true;
+            for (let i = 0; i < 3; i++) {
+                if (pattern[i][2 - i] != player) {
+                    win = false
+                }
+            }
+            if (win) {
+                return win;
+            }
+            return false;
         }
         return false;
     }
 
-    show();
+    function clone(pattern) {
+        return JSON.parse(JSON.stringify(pattern));
+    }
 
+    function willWin(pattern, player) {
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (pattern[i][j])
+                    continue;
+                let tmp = clone(pattern);
+                tmp[i][j] = player;
+                if (check(tmp, player)) {
+                    return [j, i];
+                }
+            }
+        }
+        return null;
+    }
+
+    function bestChoice(pattern, player) {
+        let p;
+        if (p = willWin(pattern, player)) {
+            return {
+                point: p,
+                result: '1'
+            }
+        }
+        let result = -2;
+        let point = null;
+        outer: for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (pattern[i][j])
+                    continue
+                let tmp = clone(pattern);
+                tmp[i][j] = player;
+                let r = bestChoice(tmp, 3 - player).result;
+
+                if (-r > result) {
+                    result = -r;
+                    point = [j, i];
+                }
+                if (result == 1) {
+                    break outer;
+                }
+            }
+        }
+        return {
+            point: point,
+            result: point ? result : 0
+        }
+    }
+
+
+    show();
+    let player1Element = document.getElementById('p1');
+    player1Element.style.backgroundColor = '#9fee00';
 </script>
