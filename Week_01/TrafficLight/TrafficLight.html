@@ -1,0 +1,77 @@
+<style>
+    .content {
+        display: flex;
+        background-color: black;
+        width: fit-content;
+    }
+
+    .light {
+        width: 100px;
+        height: 100px;
+        margin: 10px;
+        border-radius: 50px;
+        background-color: gray;
+    }
+</style>
+
+<html>
+
+<body>
+    <div class="content">
+        <div id="red" class="light"></div>
+        <div id="yellow" class="light"></div>
+        <div id="green" class="light"></div>
+    </div>
+
+</body>
+
+</html>
+
+<script>
+    let red = document.getElementById("red");
+    let yellow = document.getElementById("yellow");
+    let green = document.getElementById("green");
+
+    function run() {
+        greenLight(() => {
+            yellowLight(() => {
+                redLight(() => {
+                    run();
+                })
+            })
+        })
+
+    }
+
+    function reset() {
+        red.style.backgroundColor = 'gray';
+        yellow.style.backgroundColor = 'gray';
+        green.style.backgroundColor = 'gray';
+    }
+
+    function greenLight(callback) {
+        reset();
+        green.style.backgroundColor = 'green';
+        setTimeout(() => {
+            callback();
+        }, 10000);
+    }
+
+    function yellowLight(callback) {
+        reset();
+        yellow.style.backgroundColor = 'yellow';
+        setTimeout(() => {
+            callback();
+        }, 2000);
+    }
+
+    function redLight(callback) {
+        reset();
+        red.style.backgroundColor = 'red';
+        setTimeout(() => {
+            callback();
+        }, 5000);
+    }
+
+    run();
+</script>
