@@ -1,0 +1,111 @@
+<style>
+    .container {
+        display: flex;
+        width: 800px;
+        height: 800px;
+        background-color: lightgray;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .container>div {
+        width: 6px;
+        height: 6px;
+        border: 1px solid white;
+        background-color: gray;
+    }
+</style>
+
+<html>
+
+<body>
+    <div class="container" id="container"></div>
+    <button onclick="localStorage['source'] = JSON.stringify(source)">保存</button>
+</body>
+
+</html>
+
+<script>
+    let source = localStorage['source'] ? JSON.parse(localStorage['source']) : Array(10000).fill(0);
+
+    function run() {
+
+        let container = document.getElementById('container');
+        container.innerHTML = "";
+        for (let index = 0; index < source.length; index++) {
+            let cell = document.createElement('div');
+            cell.id = index;
+            container.appendChild(cell);
+            if (source[index] == 1) {
+                cell.style.backgroundColor = 'black';
+            }
+            if (source[index] == 2) {
+                cell.style.backgroundColor = 'red';
+            }
+
+            cell.addEventListener('mousemove', () => {
+                if (mousedown) {
+                    if (clear) {
+                        source[index] = 0;
+                        cell.style.backgroundColor = '';
+
+                    } else {
+                        source[index] = 1;
+                        cell.style.backgroundColor = 'black';
+                    }
+                }
+            })
+
+        }
+
+        let mousedown = false;
+        let clear = false;
+        document.addEventListener('mousedown', (e) => {
+            mousedown = true;
+            clear = (e.which === 3)
+
+        })
+        document.addEventListener('mouseup', () => {
+            mousedown = false;
+        })
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+    }
+
+
+
+    function path(map, start, end) {
+        var queue = [start];
+
+        function insert(x, y) {
+            if (x > 100 || x < 0 || y > 100 || y < 0) {
+                return;
+            }
+            if (map[y * 100 + x]) {
+                return;
+            }
+            map[y * 100 + x] = 2
+            queue.push([x, y]);
+            console.log(end);
+            let cell = document.getElementById(y * 100 + x);
+            cell.style.backgroundColor = 'red';
+        }
+
+        while (queue.length) {
+            let p = queue.shift();
+            console.log(p);
+            let x = p[0];
+            let y = p[1];
+            if (p[0] == end[0] & p[1] == end[1]) {
+                return true;
+            }
+            insert(x, y + 1);
+            insert(x, y - 1);
+            insert(x - 1, y);
+            insert(x + 1, y);
+        }
+    }
+    run();
+    path(source, [0, 0], [4, 4]);
+</script>
