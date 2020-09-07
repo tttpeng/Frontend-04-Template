@@ -22,6 +22,7 @@
         <div id="yellow" class="light"></div>
         <div id="green" class="light"></div>
     </div>
+    <button id="next">Next</button>
 
 </body>
 
@@ -32,16 +33,31 @@
     let yellow = document.getElementById("yellow");
     let green = document.getElementById("green");
 
-    function run() {
-        greenLight(() => {
-            yellowLight(() => {
-                redLight(() => {
-                    run();
-                })
-            })
-        })
-
+    function sleep(t) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => resolve(), t);
+        });
     }
+
+    function happen(element, eventName) {
+        return new Promise((resolve, reject) => {
+            element.addEventListener(eventName, resolve, {
+                once: true
+            });
+        });
+    }
+
+    async function run() {
+        while (true) {
+            greenLight();
+            await happen(document.getElementById('next'), "click")
+            yellowLight();
+            await happen(document.getElementById('next'), "click")
+            redLight();
+            await happen(document.getElementById('next'), "click")
+        }
+    }
+
 
     function reset() {
         red.style.backgroundColor = 'gray';
@@ -52,26 +68,56 @@
     function greenLight(callback) {
         reset();
         green.style.backgroundColor = 'green';
-        setTimeout(() => {
-            callback();
-        }, 10000);
     }
 
     function yellowLight(callback) {
         reset();
         yellow.style.backgroundColor = 'yellow';
-        setTimeout(() => {
-            callback();
-        }, 2000);
     }
 
     function redLight(callback) {
         reset();
         red.style.backgroundColor = 'red';
-        setTimeout(() => {
-            callback();
-        }, 5000);
     }
 
-    run();
+
+
+
+    function* go() {
+        while (true) {
+            greenLight();
+            yield sleep(400);
+            yellowLight();
+            yield sleep(400);
+            redLight();
+            yield sleep(400);
+        }
+    }
+
+    function run(interator) {        
+        let {
+            value,
+            done
+        } = interator.next();
+        console.log(value,done);
+        if (done)
+            return;
+        if (value instanceof Promise) {
+            value.then(() => {
+                run(interator);
+            })
+
+        }
+    }
+
+    function co(generator) {
+        return function () {
+            return run(generator());
+        }
+    }
+
+
+
+    co(go)();
+    // run();
 </script>
