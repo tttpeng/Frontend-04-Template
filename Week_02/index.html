@@ -1,0 +1,23 @@
+<script>
+
+    function getResource(params) {
+        return new Promise((resolve, reject) => {
+            resolve('x')
+        });
+    }
+
+    function getResult(params) {
+        return new Promise((resolve, reject) => {
+            getResource().then((res)=> {
+                resolve({
+                    a:res,
+                    b:'1'
+                });
+            })
+        });        
+    }
+
+    getResult().then(ren => console.log(ren));
+
+
+</script>
