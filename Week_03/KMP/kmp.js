@@ -69,6 +69,6 @@ function buildPatternTable(word) {
 // abababc
 // 0001234
 
-let result = kmp('abababcabab', 'abababca');
-console.log(buildPatternTable("abababca"))
+let result = kmp('abababcabab', 'ABCDABD');
+console.log(buildPatternTable("ABCDABD"))
 console.log(result);
